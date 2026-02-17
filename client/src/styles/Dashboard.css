@@ -1,0 +1,102 @@
+.dashboard-page {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  background-color: #f8fafc;
+}
+
+.sidebar {
+  width: 220px;
+  background-color: #0f172a;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 20px 0;
+}
+
+.sidebar-top {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.sidebar-title {
+  color: rgb(255, 255, 255);
+  font-family: "Anton", sans-serif;
+  text-align: center;
+  font-size: 24px;
+  margin-bottom: 40px;
+}
+
+.sidebar-nav button {
+  display: block;
+  width: 100%;
+  padding: 12px 20px;
+  margin-bottom: 10px;
+  color: white;
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  font-family: "Montserrat", sans-serif;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+
+.sidebar-nav button:hover {
+  background-color: #1e293b;
+}
+
+.sidebar-nav button.active {
+  background-color: #1e293b;
+  font-weight: 600;
+}
+
+.logout-button {
+  color: white;
+  background: none;
+  border: none;
+  padding: 12px 20px;
+  cursor: pointer;
+  font-family: "Montserrat", sans-serif;
+  font-weight: 500;
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.logout-button:hover {
+  background-color: #1e293b;
+}
+
+.main-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.topbar {
+  height: 60px;
+  background-color: white;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 30px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.topbar-title {
+  font-family: "Anton", sans-serif;
+  font-size: 24px;
+  margin: 0;
+}
+
+.topbar-welcome {
+  font-family: "Montserrat", sans-serif;
+  font-weight: 500;
+}
+
+.dashboard-content {
+  flex: 1;
+  padding: 30px;
+  background-color: #f8fafc;
+}

@@ -1,0 +1,126 @@
+.login-page {
+  background-color: #262b5d;
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  font-family: "Montserrat", sans-serif;
+}
+
+.app-title {
+  position: absolute;
+  top: 20px;
+  left: 50px;
+  color: white;
+  font-size: 150px;
+  font-weight: 400;
+  white-space: nowrap;
+  max-width: 90vw;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-family: "Anton", sans-serif;
+}
+
+.login-container {
+  background-color: white;
+  padding: 40px;
+  border-radius: 10px;
+  width: 350px;
+  max-width: 90%;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  font-family: "Montserrat", sans-serif;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+  z-index: 1;
+}
+
+.login-container:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+}
+
+.login-input {
+  padding: 10px;
+  font-size: 16px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  font-family: "Montserrat", sans-serif;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.login-input:focus {
+  outline: none;
+  border-color: #262b5d;
+  box-shadow: 0 0 5px rgba(38, 43, 93, 0.5);
+}
+
+.login-button {
+  padding: 10px;
+  font-size: 16px;
+  background-color: #f3ed40;
+  color: rgb(0, 0, 0);
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-family: "Montserrat", sans-serif;
+  transition:
+    background-color 0.2s ease,
+    transform 0.1s ease;
+}
+
+.login-button:hover {
+  background-color: #1b2045;
+  transform: translateY(-2px);
+}
+
+.login-button:active {
+  transform: translateY(0);
+}
+
+.anton-regular {
+  font-family: "Anton", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.login-container h2 {
+  text-align: center;
+}
+
+.login-button {
+  margin-top: 10px;
+}
+
+@media (max-width: 768px) {
+  .app-title {
+    font-size: 80px;
+    top: 10px;
+    left: 20px;
+  }
+
+  .login-container {
+    width: 90%;
+    padding: 35px 25px;
+  }
+}
+
+@media (max-width: 480px) {
+  .app-title {
+    font-size: 50px;
+    top: 5px;
+    left: 10px;
+  }
+
+  .login-container {
+    width: 95%;
+    padding: 25px 20px;
+  }
+}
