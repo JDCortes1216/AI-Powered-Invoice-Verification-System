@@ -1,65 +1,136 @@
 import { useState } from "react";
 import "../styles/upload.css";
 
-function Upload() {
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [extractedText, setExtractedText] = useState("");
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
-  const handleFileChange = (event) => {
-    setSelectedFile(event.target.files[0]);
+const Upload = () => {
+  const [file, setFile] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState(null);
+  const [error, setError] = useState(null);
+
+  const handleFileChange = (e) => {
+    setFile(e.target.files[0]);
+    setResult(null);
+    setError(null);
   };
 
-  const handleFileUpload = async () => {
-    if (!selectedFile) return;
+  const handleUpload = async () => {
+    if (!file) return;
 
     const formData = new FormData();
-    formData.append("file", selectedFile);
+    formData.append("file", file);
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/upload", {
+      setLoading(true);
+      setError(null);
+
+      const response = await fetch(`${API_URL}/upload`, {
         method: "POST",
         body: formData,
       });
 
+      if (!response.ok) throw new Error("Upload failed");
+
       const data = await response.json();
-      console.log(data.text);
-      setExtractedText(data.text);
+      setResult(data);
     } catch (err) {
-      console.error("Upload error:", err);
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="upload-page">
-      <div className="upload-box">
-        <h2 className="upload-title">Upload Invoice</h2>
-        <p className="upload-subtitle">
-          Start uploading the invoice here to get a result
-        </p>
-        <p className="upload-subtitle">
-          Currently just supports image files such as .jpg, .jpeg, and .png
-        </p>
-
-        <input
-          type="file"
-          accept="image/*"
-          onChange={handleFileChange}
-          className="file-input"
-        />
-
-        <button className="upload-button" onClick={handleFileUpload}>
-          Upload
-        </button>
-
-        {extractedText && (
-          <div className="extracted-text">
-            <h3>Extracted Text:</h3>
-            <pre>{extractedText}</pre>
-          </div>
-        )}
+      <div className="upload-header">
+        <h1 className="upload-title">Upload Invoice</h1>
+        <p className="upload-subtitle">Upload an invoice image to analyze</p>
       </div>
+
+      <div className="upload-controls">
+        <input
+          className="file-input"
+          type="file"
+          accept="image/*,.pdf"
+          onChange={handleFileChange}
+        />
+        <button
+          className="upload-button"
+          onClick={handleUpload}
+          disabled={!file || loading}
+        >
+          {loading ? "Analyzing..." : "Upload"}
+        </button>
+      </div>
+
+      {error && (
+        <div className="error-box">
+          <p>Error: {error}</p>
+        </div>
+      )}
+
+      {result && (
+        <div className="result-box">
+          <h2>Invoice Analysis</h2>
+          <table>
+            <tbody>
+              <tr><td>Vendor</td><td>{result.vendor_name}</td></tr>
+              <tr><td>Invoice #</td><td>{result.invoice_number}</td></tr>
+              <tr><td>Date</td><td>{result.invoice_date}</td></tr>
+              <tr><td>Due Date</td><td>{result.due_date}</td></tr>
+              <tr><td>Subtotal</td><td>{result.subtotal}</td></tr>
+              <tr><td>Tax</td><td>{result.tax}</td></tr>
+              <tr><td>Total</td><td>{result.total_amount}</td></tr>
+              <tr>
+                <td>Status</td>
+                <td className={`status-${result.verification_status}`}>
+                  {result.verification_status}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          {result.line_items?.length > 0 && (
+            <>
+              <h3>Line Items</h3>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Description</th>
+                    <th>Qty</th>
+                    <th>Unit Price</th>
+                    <th>Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {result.line_items.map((item, i) => (
+                    <tr key={i}>
+                      <td>{item.description}</td>
+                      <td>{item.quantity}</td>
+                      <td>{item.unit_price}</td>
+                      <td>{item.total}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </>
+          )}
+
+          {result.discrepancies?.length > 0 && (
+            <div className="discrepancies">
+              <h3>Discrepancies Found</h3>
+              <ul>
+                {result.discrepancies.map((d, i) => (
+                  <li key={i}>{d}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
-}
+};
 
 export default Upload;

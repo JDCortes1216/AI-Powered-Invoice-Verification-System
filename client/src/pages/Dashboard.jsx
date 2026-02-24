@@ -16,10 +16,11 @@ function Dashboard({ setUser }) {
       />
       <div className="main-area">
         <Topbar />
-        <div className="dashboard-content"></div>
-        {activePage === "Dashboard" && <p></p>}
-        {activePage === "Upload" && <Upload />}
-        {activePage === "Invoices" && <p></p>}
+        <div className="main-content">
+          {activePage === "Dashboard" && <p></p>}
+          {activePage === "Upload" && <Upload />}
+          {activePage === "Invoices" && <p></p>}
+        </div>
       </div>
     </div>
   );

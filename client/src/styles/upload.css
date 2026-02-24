@@ -1,65 +1,127 @@
 .upload-page {
   display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100%;
+  flex-direction: column;
   padding: 40px;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
 }
 
-.upload-box {
-  align-items: center;
-  width: 600px;
-  background-color: #18d2c2;
-  padding: 40px 30px;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  font-family: "Montserrat", sans-serif;
-  color: #000;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+.upload-header {
+  margin-bottom: 20px;
 }
 
 .upload-title {
-  font-size: 50px;
+  font-size: 32px;
   font-weight: 600;
-  margin: 0;
+  margin: 0 0 5px 0;
+  color: #000;
 }
 
 .upload-subtitle {
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 400;
   margin: 0;
+  color: #666;
+}
+
+.upload-controls {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 20px;
 }
 
 .file-input {
   padding: 10px;
   border-radius: 8px;
-  border: none;
+  border: 1px solid #ddd;
   font-family: "Montserrat", sans-serif;
   cursor: pointer;
+  flex: 1;
+  box-sizing: border-box;
 }
 
 .upload-button {
-  margin-top: 10px;
-  padding: 12px;
+  padding: 10px 30px;
   border-radius: 8px;
   border: none;
-  background-color: #f3ed40;
+  background-color: #3c60ae;
+  color: #fff;
   font-weight: 600;
   cursor: pointer;
   transition: background 0.2s;
+  white-space: nowrap;
 }
 
 .upload-button:hover {
-  background-color: #e6df38;
+  background-color: #2e4d8e;
 }
 
-.extracted-text {
-  margin-top: 20px;
-  background-color: rgba(255, 255, 255, 0.8);
-  padding: 15px;
+.upload-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.error-box {
+  color: red;
+  background: #ffe5e5;
+  padding: 10px;
   border-radius: 8px;
-  max-height: 300px;
-  overflow-y: auto;
+  margin-bottom: 20px;
+}
+
+.result-box {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid #ddd;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.result-box h2 {
+  margin: 0 0 15px 0;
+  font-size: 20px;
+  color: #3c60ae;
+}
+
+.result-box h3 {
+  margin: 15px 0 10px 0;
+  font-size: 16px;
+  color: #3c60ae;
+}
+
+.result-box table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 10px;
+  table-layout: fixed;
+}
+
+.result-box td, .result-box th {
+  padding: 10px;
+  border: 1px solid #eee;
+  text-align: left;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.result-box tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.result-box th {
+  background-color: #3c60ae;
+  color: #fff;
+  font-weight: 600;
+}
+
+.status-verified { color: green; font-weight: bold; }
+.status-needs_review { color: orange; font-weight: bold; }
+.status-rejected { color: red; font-weight: bold; }
+
+.discrepancies {
+  color: orange;
 }
