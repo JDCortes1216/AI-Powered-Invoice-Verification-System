@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { supabase } from "../supabaseClient";
 import "../styles/upload.css";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
@@ -25,15 +26,27 @@ const Upload = () => {
       setLoading(true);
       setError(null);
 
+      // Get the current session token to authenticate with backend
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData?.session?.access_token;
+
       const response = await fetch(`${API_URL}/upload`, {
         method: "POST",
+        headers: {
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
         body: formData,
       });
 
       if (!response.ok) throw new Error("Upload failed");
 
       const data = await response.json();
-      setResult(data);
+
+      if (data.error) {
+        setError(data.error);
+      } else {
+        setResult(data);
+      }
     } catch (err) {
       setError(err.message);
     } finally {
@@ -45,7 +58,9 @@ const Upload = () => {
     <div className="upload-page">
       <div className="upload-header">
         <h1 className="upload-title">Upload Invoice</h1>
-        <p className="upload-subtitle">Upload an invoice image to analyze</p>
+        <p className="upload-subtitle">
+          Upload an invoice image to analyze and save
+        </p>
       </div>
 
       <div className="upload-controls">
@@ -60,7 +75,7 @@ const Upload = () => {
           onClick={handleUpload}
           disabled={!file || loading}
         >
-          {loading ? "Analyzing..." : "Upload"}
+          {loading ? "Analyzing..." : "Upload & Analyze"}
         </button>
       </div>
 
@@ -72,16 +87,48 @@ const Upload = () => {
 
       {result && (
         <div className="result-box">
-          <h2>Invoice Analysis</h2>
+          <div className="result-header">
+            <h2>Invoice Analysis</h2>
+            {result.saved && (
+              <span className="saved-badge">✓ Saved to Invoices</span>
+            )}
+            {result.saved === false && (
+              <span className="not-saved-badge">
+                ⚠ Not saved — {result.save_error}
+              </span>
+            )}
+          </div>
+
           <table>
             <tbody>
-              <tr><td>Vendor</td><td>{result.vendor_name}</td></tr>
-              <tr><td>Invoice #</td><td>{result.invoice_number}</td></tr>
-              <tr><td>Date</td><td>{result.invoice_date}</td></tr>
-              <tr><td>Due Date</td><td>{result.due_date}</td></tr>
-              <tr><td>Subtotal</td><td>{result.subtotal}</td></tr>
-              <tr><td>Tax</td><td>{result.tax}</td></tr>
-              <tr><td>Total</td><td>{result.total_amount}</td></tr>
+              <tr>
+                <td>Vendor</td>
+                <td>{result.vendor_name}</td>
+              </tr>
+              <tr>
+                <td>Invoice #</td>
+                <td>{result.invoice_number}</td>
+              </tr>
+              <tr>
+                <td>Date</td>
+                <td>{result.invoice_date}</td>
+              </tr>
+              <tr>
+                <td>Due Date</td>
+                <td>{result.due_date}</td>
+              </tr>
+              <tr>
+                <td>Subtotal</td>
+                <td>{result.subtotal ? `$${result.subtotal}` : "—"}</td>
+              </tr>
+              <tr>
+                <td>Tax</td>
+                <td>{result.tax ? `$${result.tax}` : "—"}</td>
+              </tr>
+              <tr>
+                <td>Total</td>
+                <td>{result.total_amount ? `$${result.total_amount}` : "—"}</td>
+              </tr>
               <tr>
                 <td>Status</td>
                 <td className={`status-${result.verification_status}`}>

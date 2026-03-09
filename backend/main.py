@@ -4,10 +4,11 @@ import os
 import json
 import requests
 import pytesseract
-from fastapi import FastAPI, File, UploadFile
+from fastapi import FastAPI, File, UploadFile, Header, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from PIL import Image
 from dotenv import load_dotenv
+from supabase import create_client, Client
 
 load_dotenv()
 
@@ -26,21 +27,50 @@ app.add_middleware(
 HF_API_KEY = os.getenv("HF_API_KEY")
 HF_API_URL = "https://router.huggingface.co/v1/chat/completions"
 
-@app.post("/upload")
-async def upload_invoice(file: UploadFile = File(...)):
-    contents = await file.read()
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-    if file.filename.endswith(".pdf"):
+
+def safe_float(value):
+    """Safely convert a value to float, return None if not possible."""
+    try:
+        if value is None or value == "":
+            return None
+        return float(str(value).replace(",", "").replace("$", "").strip())
+    except (ValueError, TypeError):
+        return None
+
+
+@app.post("/upload")
+async def upload_invoice(
+    file: UploadFile = File(...),
+    authorization: str = Header(None)
+):
+    # --- Extract user_id from Supabase JWT ---
+    user_id = None
+    if authorization and authorization.startswith("Bearer "):
+        token = authorization.split(" ")[1]
+        try:
+            user_response = supabase.auth.get_user(token)
+            user_id = user_response.user.id
+        except Exception as e:
+            print(f"Auth error: {e}")
+
+    # --- Read file ---
+    contents = await file.read()
+    filename = file.filename
+
+    if filename.endswith(".pdf"):
         pdf = fitz.open(stream=contents, filetype="pdf")
         page = pdf[0]
-        # better quality for OCR
         mat = fitz.Matrix(2.0, 2.0)
         pix = page.get_pixmap(matrix=mat)
         image = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
     else:
         image = Image.open(io.BytesIO(contents))
 
-    # Perform OCR
+    # --- OCR ---
     extracted_text = pytesseract.image_to_string(image, config="--psm 6")
     print("=== OCR EXTRACTED TEXT ===")
     print(extracted_text)
@@ -49,7 +79,7 @@ async def upload_invoice(file: UploadFile = File(...)):
     if not extracted_text.strip():
         return {"error": "OCR extracted no text from the file. Try a clearer image."}
 
-    # Send to Qwen2.5 via HuggingFace
+    # --- Send to Qwen2.5 via HuggingFace ---
     response = requests.post(
         HF_API_URL,
         headers={
@@ -108,6 +138,38 @@ Return ONLY this JSON:
     except Exception as e:
         print("=== ERROR ===")
         print(response.text)
-        result = {"raw_response": response.text, "error": str(e)}
+        return {"raw_response": response.text, "error": str(e)}
+
+    # --- Save to Supabase ---
+    if user_id:
+        try:
+            insert_data = {
+                "user_id": user_id,
+                "vendor_name": result.get("vendor_name"),
+                "invoice_number": result.get("invoice_number"),
+                "invoice_date": result.get("invoice_date"),
+                "due_date": result.get("due_date"),
+                "subtotal": safe_float(result.get("subtotal")),
+                "tax": safe_float(result.get("tax")),
+                "total_amount": safe_float(result.get("total_amount")),
+                "verification_status": result.get("verification_status"),
+                "discrepancies": result.get("discrepancies", []),
+                "line_items": result.get("line_items", []),
+                "file_name": filename,
+            }
+            db_response = supabase.table("invoicetest1").insert(insert_data).execute()
+            print("=== SAVED TO SUPABASE ===")
+            print(db_response)
+            # Return the saved record id alongside the result
+            if db_response.data:
+                result["id"] = db_response.data[0]["id"]
+                result["saved"] = True
+        except Exception as e:
+            print(f"Supabase insert error: {e}")
+            result["saved"] = False
+            result["save_error"] = str(e)
+    else:
+        result["saved"] = False
+        result["save_error"] = "User not authenticated"
 
     return result

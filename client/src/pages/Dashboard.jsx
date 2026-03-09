@@ -1,8 +1,10 @@
 import { useState } from "react";
 import Sidebar from "../components/sidebar";
 import Topbar from "../components/Topbar";
-import "../styles/Dashboard.css";
 import Upload from "./upload";
+import Invoices from "./invoice";
+import DashboardHome from "./Dashboardhome";
+import "../styles/Dashboard.css";
 
 function Dashboard({ setUser }) {
   const [activePage, setActivePage] = useState("Dashboard");
@@ -17,9 +19,9 @@ function Dashboard({ setUser }) {
       <div className="main-area">
         <Topbar />
         <div className="main-content">
-          {activePage === "Dashboard" && <p></p>}
+          {activePage === "Dashboard" && <DashboardHome />}
           {activePage === "Upload" && <Upload />}
-          {activePage === "Invoices" && <p></p>}
+          {activePage === "Invoices" && <Invoices />}
         </div>
       </div>
     </div>
