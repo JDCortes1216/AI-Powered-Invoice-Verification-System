@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "../supabaseClient";
-import "../styles/DashboardHome.css";
+import "../styles/Dashboardhome.css";
 
 const DashboardHome = () => {
   const [stats, setStats] = useState({
