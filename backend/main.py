@@ -140,6 +140,21 @@ Return ONLY this JSON:
         print(response.text)
         return {"raw_response": response.text, "error": str(e)}
 
+    # --- Validate required fields (backend enforcement) ---
+    required_fields = {
+        "vendor_name": "Vendor/company name is missing",
+        "invoice_number": "Invoice number is missing",
+        "invoice_date": "Invoice date is missing",
+        "total_amount": "Total amount is missing",
+    }
+    missing_errors = [
+        msg for field, msg in required_fields.items()
+        if not result.get(field) or str(result[field]).strip() == ""
+    ]
+    if missing_errors:
+        result["verification_status"] = "rejected"
+        result["discrepancies"] = result.get("discrepancies", []) + missing_errors
+
     # --- Save to Supabase ---
     if user_id:
         try:

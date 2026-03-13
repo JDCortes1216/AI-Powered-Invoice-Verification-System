@@ -6,4 +6,3 @@ Pillow
 pytesseract
 python-multipart
 pymupdf
-supabase
