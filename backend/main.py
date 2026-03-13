@@ -176,6 +176,8 @@ Return ONLY this JSON:
             print("=== SAVED TO SUPABASE ===")
             print(db_response)
             # Return the saved record id alongside the result
+                        # Return the saved record id alongside the result
+
             if db_response.data:
                 result["id"] = db_response.data[0]["id"]
                 result["saved"] = True
